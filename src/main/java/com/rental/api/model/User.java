@@ -2,9 +2,8 @@ package com.rental.api.model;
 
 import java.util.Date;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,17 +22,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private String password;
 
-    @Column(name="created_at")
-    @CreatedDate
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at", nullable = false)
     private Date createdAt;
 
-    @Column(name="updated_at")
-    @LastModifiedDate
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
     private Date updatedAt;
 }

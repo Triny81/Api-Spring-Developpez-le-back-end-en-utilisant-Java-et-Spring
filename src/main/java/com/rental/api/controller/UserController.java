@@ -16,7 +16,7 @@ import com.rental.api.service.UserService;
 
 @RestController
 public class UserController {
-
+    
     @Autowired
     private UserService userService;
 
@@ -25,9 +25,10 @@ public class UserController {
      * 
      * @param user An object user
      * @return The user object saved
-     */
-    @PostMapping("/user")
-    public User createUser(@RequestBody User user) {
+          * @throws Exception 
+          */
+         @PostMapping("/user")
+         public User createUser(@RequestBody User user) throws Exception {
         return userService.saveUser(user);
     }
 
@@ -42,6 +43,23 @@ public class UserController {
         Optional<User> user = userService.getUser(id);
         if (user.isPresent()) {
             return user.get();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Read - Get one user
+     * 
+     * @param email The id of the user
+     * @return An User object full filled
+     */
+    @GetMapping("/user/{email}")
+    public User getUser(@PathVariable("email") final String email) {
+        User user = userService.getUserByMail(email);
+
+        if (user != null) {
+            return user;
         } else {
             return null;
         }
@@ -63,9 +81,10 @@ public class UserController {
      * @param id   - The id of the user to update
      * @param user - The user object updated
      * @return
-     */
-    @PutMapping("/user/{id}")
-    public User updateUser(@PathVariable("id") final Long id, @RequestBody User user) {
+          * @throws Exception 
+          */
+         @PutMapping("/user/{id}")
+         public User updateUser(@PathVariable("id") final Long id, @RequestBody User user) throws Exception {
         Optional<User> u = userService.getUser(id);
 
         if (u.isPresent()) {
@@ -102,5 +121,27 @@ public class UserController {
     @DeleteMapping("/user/{id}")
     public void deleteUser(@PathVariable("id") final Long id) {
         userService.deleteUser(id);
+    }
+
+    @PostMapping("/user/registration")
+    public User registerUser(@RequestBody User user) throws Exception {
+        User userNew = new User();
+
+        String email = user.getEmail();
+        if (email != null) {
+            userNew.setEmail(email);
+        }
+
+        String name = user.getName();
+        if (name != null) {
+            userNew.setName(name);
+        }
+
+        String password = user.getPassword();
+        if (password != null) {
+            userNew.setPassword(password);
+        }
+        
+        return userService.saveUser(userNew);
     }
 }
