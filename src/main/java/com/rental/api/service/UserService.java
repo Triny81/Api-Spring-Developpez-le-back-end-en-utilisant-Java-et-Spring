@@ -41,12 +41,12 @@ public class UserService {
         if (user.getEmail() != null) {
             User userFound = userRepository.findByEmail(user.getEmail());
             
-            if (userFound != null && userFound.getEmail() != null && (user.getId() == null || !user.getId().equals(userFound.getId()))) { // if email choose exists for another account
+            if (userFound != null && userFound.getEmail() != null && (user.getId() == null || !user.getId().equals(userFound.getId()))) {
                 throw new Exception("Email already exists");
             }
         }
 
-        user.setPassword(ssc.passwordEncoder().encode(user.getPassword())); // encode the password
+        user.setPassword(ssc.passwordEncoder().encode(user.getPassword()));
 
         User savedUser = userRepository.save(user);
         return savedUser;

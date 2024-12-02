@@ -14,30 +14,28 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rental.api.model.User;
 import com.rental.api.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @RestController
 public class UserController {
-    
+
     @Autowired
     private UserService userService;
 
-    /**
-     * Create - Add a new user
-     * 
-     * @param user An object user
-     * @return The user object saved
-          * @throws Exception 
-          */
-         @PostMapping("/user")
-         public User createUser(@RequestBody User user) throws Exception {
+    private static final String schemaExample = "{ \"name\": \"Test\", \"email\": \"test@test.com\", \"password\": \"Password123\" }";
+
+    @Operation(summary = "Create a new user")
+    @PostMapping("/user")
+    public User createUser(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExample)))
+            @RequestBody User user) throws Exception {
         return userService.saveUser(user);
     }
 
-    /**
-     * Read - Get one user
-     * 
-     * @param id The id of the user
-     * @return An User object full filled
-     */
+    @Operation(summary = "Get one user by id")
     @GetMapping("/user/{id}")
     public User getUser(@PathVariable("id") final Long id) {
         Optional<User> user = userService.getUser(id);
@@ -48,13 +46,8 @@ public class UserController {
         }
     }
 
-    /**
-     * Read - Get one user
-     * 
-     * @param email The id of the user
-     * @return An User object full filled
-     */
-    @GetMapping("/user/{email}")
+    @Operation(summary = "Get one user by email")
+    @GetMapping("/user/email/{email}")
     public User getUser(@PathVariable("email") final String email) {
         User user = userService.getUserByMail(email);
 
@@ -65,26 +58,18 @@ public class UserController {
         }
     }
 
-    /**
-     * Read - Get all users
-     * 
-     * @return - An Iterable object of User full filled
-     */
+    @Operation(summary = "Get all users")
     @GetMapping("/users")
     public Iterable<User> getUsers() {
         return userService.getUsers();
     }
 
-    /**
-     * Update - Update an existing user
-     * 
-     * @param id   - The id of the user to update
-     * @param user - The user object updated
-     * @return
-          * @throws Exception 
-          */
-         @PutMapping("/user/{id}")
-         public User updateUser(@PathVariable("id") final Long id, @RequestBody User user) throws Exception {
+    @Operation(summary = "Update an existing user")
+    @PutMapping("/user/{id}")
+    public User updateUser(          
+            @PathVariable("id") final Long id, 
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExample)))
+            @RequestBody User user) throws Exception {
         Optional<User> u = userService.getUser(id);
 
         if (u.isPresent()) {
@@ -113,35 +98,9 @@ public class UserController {
         }
     }
 
-    /**
-     * Delete - Delete an user
-     * 
-     * @param id - The id of the user to delete
-     */
+    @Operation(summary = "Delete a user")
     @DeleteMapping("/user/{id}")
     public void deleteUser(@PathVariable("id") final Long id) {
         userService.deleteUser(id);
-    }
-
-    @PostMapping("/user/registration")
-    public User registerUser(@RequestBody User user) throws Exception {
-        User userNew = new User();
-
-        String email = user.getEmail();
-        if (email != null) {
-            userNew.setEmail(email);
-        }
-
-        String name = user.getName();
-        if (name != null) {
-            userNew.setName(name);
-        }
-
-        String password = user.getPassword();
-        if (password != null) {
-            userNew.setPassword(password);
-        }
-        
-        return userService.saveUser(userNew);
     }
 }

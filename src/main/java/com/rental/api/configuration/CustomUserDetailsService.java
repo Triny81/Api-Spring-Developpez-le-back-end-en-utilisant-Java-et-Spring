@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		com.rental.api.model.User user = userRepository.findByEmail(email);
-		return new User(user.getEmail(), user.getPassword(), getGrantedAuthorities("ROLE_USER"));
+		return new User(user.getEmail(), user.getPassword(), getGrantedAuthorities("USER"));
 	}
 
 	private List<GrantedAuthority> getGrantedAuthorities(String role) {

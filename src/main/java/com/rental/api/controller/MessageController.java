@@ -16,27 +16,28 @@ import com.rental.api.model.Rental;
 import com.rental.api.model.User;
 import com.rental.api.service.MessageService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @RestController
 public class MessageController {
 
     @Autowired
     private MessageService messageService;
 
-    /**
-	 * Create - Add a new message
-	 * @param message An object message
-	 * @return The message object saved
-	 */
+	private static final String schemaExample = "{ \"message\": \"A message\", \"rental\": { \"id\": 0}, \"user\": { \"id\": 0} }";
+
+    @Operation(summary = "Add a message to a rental")
 	@PostMapping("/message")
-	public Message createMessage(@RequestBody Message message) {
+	public Message createMessage(
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExample)))
+			@RequestBody Message message) {
 		return messageService.saveMessage(message);
 	}
 	
-	/**
-	 * Read - Get one message 
-	 * @param id The id of the message
-	 * @return An Message object full filled
-	 */
+	@Operation(summary = "Get one message by id")
 	@GetMapping("/message/{id}")
 	public Message getMessage(@PathVariable("id") final Long id) {
 		Optional<Message> message = messageService.getMessage(id);
@@ -47,23 +48,18 @@ public class MessageController {
 		}
 	}
 	
-	/**
-	 * Read - Get all messages
-	 * @return - An Iterable object of Message full filled
-	 */
+	@Operation(summary = "Get all messages")
 	@GetMapping("/messages")
 	public Iterable<Message> getMessages() {
 		return messageService.getMessages();
 	}
 	
-	/**
-	 * Update - Update an existing message
-	 * @param id - The id of the message to update
-	 * @param message - The message object updated
-	 * @return
-	 */
+	@Operation(summary = "Update an existing message")
 	@PutMapping("/message/{id}")
-	public Message updateMessage(@PathVariable("id") final Long id, @RequestBody Message message) {
+	public Message updateMessage(
+		@PathVariable("id") final Long id, 
+		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExample)))
+		@RequestBody Message message) {
 		Optional<Message> m = messageService.getMessage(id);
 
 		if(m.isPresent()) {
@@ -92,11 +88,7 @@ public class MessageController {
 		}
 	}
 	
-	
-	/**
-	 * Delete - Delete an message
-	 * @param id - The id of the message to delete
-	 */
+	@Operation(summary = "Delete a message")
 	@DeleteMapping("/message/{id}")
 	public void deleteMessage(@PathVariable("id") final Long id) {
 		messageService.deleteMessage(id);
