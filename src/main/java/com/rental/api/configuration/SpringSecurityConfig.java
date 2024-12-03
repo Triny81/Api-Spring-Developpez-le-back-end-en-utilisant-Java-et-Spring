@@ -1,9 +1,10 @@
 package com.rental.api.configuration;
 
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,10 +21,14 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Encoders;
+import io.jsonwebtoken.security.Keys;
+
 @Configuration
 public class SpringSecurityConfig {
-	@Value("${security.jwt.secret-key}")
-	private String jwtKey;
+	private SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+	private String jwtKey = Encoders.BASE64.encode(key.getEncoded());
 
 	@Autowired
 	private CustomUserDetailsService customUserDetailsService;
@@ -45,8 +50,10 @@ public class SpringSecurityConfig {
 	@Bean
 	public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder bCryptPasswordEncoder)
 			throws Exception {
-		AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-		authenticationManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(bCryptPasswordEncoder);
+		AuthenticationManagerBuilder authenticationManagerBuilder = http
+				.getSharedObject(AuthenticationManagerBuilder.class);
+		authenticationManagerBuilder.userDetailsService(customUserDetailsService)
+				.passwordEncoder(bCryptPasswordEncoder);
 		return authenticationManagerBuilder.build();
 	}
 
@@ -64,5 +71,10 @@ public class SpringSecurityConfig {
 	public JwtDecoder jwtDecoder() {
 		SecretKeySpec secretKey = new SecretKeySpec(this.jwtKey.getBytes(), 0, this.jwtKey.getBytes().length, "RSA");
 		return NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256).build();
+	}
+
+	@Bean
+	public ModelMapper modelMapper() {
+		return new ModelMapper();
 	}
 }

@@ -2,6 +2,7 @@ package com.rental.api.controller;
 
 import java.security.Principal;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.rental.api.dto.UserDTO;
 import com.rental.api.model.User;
 import com.rental.api.service.JWTService;
 import com.rental.api.service.UserService;
@@ -27,6 +29,9 @@ public class LoginController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     private JWTService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -46,7 +51,7 @@ public class LoginController {
 
         try {
             Authentication authentication = authenticationManager
-                    .authenticate(new UsernamePasswordAuthenticationToken(user.getName(), user.getPassword()));
+                    .authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
             String token = jwtService.generateToken(authentication);
 
             return token;
@@ -60,19 +65,25 @@ public class LoginController {
 
     @Operation(summary = "Create a new user account")
     @PostMapping("/auth/register")
-    public ResponseEntity<User> register(
+    public ResponseEntity<UserDTO> register(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExampleRegister))) 
             @RequestBody User user)
             throws Exception {
 
         User registeredUser = userService.saveUser(user);
 
-        return ResponseEntity.ok(registeredUser);
+        return ResponseEntity.ok(convertToDto(registeredUser));
     }
 
     @Operation(summary = "Get current user account informations")
     @GetMapping("/auth/me")
-    public User getCurrentUser(Principal principal) {
-        return userService.getUserByMail(principal.getName());
+    public UserDTO getCurrentUser(Principal principal) {
+        User user = userService.getUserByMail(principal.getName());
+        return convertToDto(user);
     }
+
+    private UserDTO convertToDto(User user) {
+		UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+		return userDTO;
+	}
 }

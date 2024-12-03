@@ -1,7 +1,9 @@
 package com.rental.api.controller;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.rental.api.dto.MessageDTO;
 import com.rental.api.model.Message;
 import com.rental.api.model.Rental;
 import com.rental.api.model.User;
@@ -27,22 +30,25 @@ public class MessageController {
     @Autowired
     private MessageService messageService;
 
+	@Autowired
+    private ModelMapper modelMapper;
+
 	private static final String schemaExample = "{ \"message\": \"A message\", \"rental\": { \"id\": 0}, \"user\": { \"id\": 0} }";
 
     @Operation(summary = "Add a message to a rental")
 	@PostMapping("/message")
-	public Message createMessage(
-			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExample)))
+	public MessageDTO createMessage(
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Message.class), examples = @ExampleObject(value = schemaExample)))
 			@RequestBody Message message) {
-		return messageService.saveMessage(message);
+		return convertToDto(messageService.saveMessage(message));
 	}
 	
 	@Operation(summary = "Get one message by id")
 	@GetMapping("/message/{id}")
-	public Message getMessage(@PathVariable("id") final Long id) {
+	public MessageDTO getMessage(@PathVariable("id") final Long id) {
 		Optional<Message> message = messageService.getMessage(id);
 		if(message.isPresent()) {
-			return message.get();
+			return convertToDto(message.get());
 		} else {
 			return null;
 		}
@@ -50,15 +56,15 @@ public class MessageController {
 	
 	@Operation(summary = "Get all messages")
 	@GetMapping("/messages")
-	public Iterable<Message> getMessages() {
-		return messageService.getMessages();
+	public ArrayList<MessageDTO> getMessages() {
+		return convertIterableToDto(messageService.getMessages());
 	}
 	
 	@Operation(summary = "Update an existing message")
 	@PutMapping("/message/{id}")
-	public Message updateMessage(
+	public MessageDTO updateMessage(
 		@PathVariable("id") final Long id, 
-		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExample)))
+		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Message.class), examples = @ExampleObject(value = schemaExample)))
 		@RequestBody Message message) {
 		Optional<Message> m = messageService.getMessage(id);
 
@@ -82,7 +88,7 @@ public class MessageController {
 
 			messageService.saveMessage(currentMessage);
 
-			return currentMessage;
+			return convertToDto(currentMessage);
 		} else {
 			return null;
 		}
@@ -90,7 +96,23 @@ public class MessageController {
 	
 	@Operation(summary = "Delete a message")
 	@DeleteMapping("/message/{id}")
-	public void deleteMessage(@PathVariable("id") final Long id) {
+	public void deleteMessage(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Message.class), examples = @ExampleObject(value = schemaExample))) @PathVariable("id") final Long id) {
 		messageService.deleteMessage(id);
+	}
+
+	private MessageDTO convertToDto(Message message) {
+		MessageDTO messageDTO = modelMapper.map(message, MessageDTO.class);
+		return messageDTO;
+	}
+
+	private ArrayList<MessageDTO> convertIterableToDto(Iterable<Message> messages) {
+		ArrayList<MessageDTO> messagesDTO = new ArrayList<MessageDTO>();
+
+		for (Message m : messages) {
+			MessageDTO messageDTO = modelMapper.map(m, MessageDTO.class);
+			messagesDTO.add(messageDTO);
+		}
+		
+		return messagesDTO;
 	}
 }

@@ -41,7 +41,7 @@ public class UserService {
         if (user.getEmail() != null) {
             User userFound = userRepository.findByEmail(user.getEmail());
             
-            if (userFound != null && userFound.getEmail() != null && (user.getId() == null || !user.getId().equals(userFound.getId()))) {
+            if (userFound != null && userFound.getEmail() != null && (user.getId() == null || !user.getId().equals(userFound.getId()))) { // Email must be unique
                 throw new Exception("Email already exists");
             }
         }
