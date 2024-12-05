@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -28,7 +29,7 @@ import io.jsonwebtoken.security.Keys;
 @Configuration
 public class SpringSecurityConfig {
 	private SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-	private String jwtKey = Encoders.BASE64.encode(key.getEncoded());
+	private String jwtKey = Encoders.BASE64.encode(key.getEncoded()); // random JWT key for every application launch
 
 	@Autowired
 	private CustomUserDetailsService customUserDetailsService;
@@ -36,10 +37,11 @@ public class SpringSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		return http
+				.cors(Customizer.withDefaults()) // needed to avoid CORS errors
 				.csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(
-						(auth) -> auth.requestMatchers("/auth/login", "/auth/register").permitAll()
+						(auth) -> auth.requestMatchers("/auth/register", "/auth/login").permitAll()
 								.anyRequest().authenticated())
 				.httpBasic(Customizer.withDefaults())
 				.oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))

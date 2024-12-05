@@ -35,7 +35,7 @@ public class RentalController {
 	private static final String schemaExample = "{ \"name\": \"My rental\", \"surface\": 25.5, \"price\": 255.55, \"picture\": \"LINK_URL\", \"description\": \"A description\", \"owner\": { \"id\": 0} }";
 
 	@Operation(summary = "Create a new rental")
-	@PostMapping("/rental")
+	@PostMapping("/rentals")
 	public RentalDTO createRental(
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class), examples = @ExampleObject(value = schemaExample))) 
 			@RequestBody Rental rental) {
@@ -43,7 +43,7 @@ public class RentalController {
 	}
 
 	@Operation(summary = "Get one rental by id")
-	@GetMapping("/rental/{id}")
+	@GetMapping("/rentals/{id}")
 	public RentalDTO getRental(@PathVariable("id") final Long id) {
 		Optional<Rental> rental = rentalService.getRental(id);
 		if (rental.isPresent()) {
@@ -60,7 +60,7 @@ public class RentalController {
 	}
 
 	@Operation(summary = "Update an existing rental")
-	@PutMapping("/rental/{id}")
+	@PutMapping("/rentals/{id}")
 	public RentalDTO updateRental(
 		@PathVariable("id") final Long id, 
 		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class), examples = @ExampleObject(value = schemaExample)))
@@ -109,7 +109,7 @@ public class RentalController {
 	}
 
 	@Operation(summary = "Delete a rental")
-	@DeleteMapping("/rental/{id}")
+	@DeleteMapping("/rentals/{id}")
 	public void deleteRental(@PathVariable("id") final Long id) {
 		rentalService.deleteRental(id);
 	}
@@ -126,7 +126,7 @@ public class RentalController {
 			RentalDTO rentalDTO = modelMapper.map(m, RentalDTO.class);
 			rentalsDTO.add(rentalDTO);
 		}
-		
+		 // TODO : modifier JSON format pour angular
 		return rentalsDTO;
 	}
 }

@@ -4,7 +4,6 @@ import java.security.Principal;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -49,12 +48,49 @@ public class LoginController {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExampleLogin))) 
             @RequestBody User user) {
 
-        try {
-            Authentication authentication = authenticationManager
-                    .authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
-            String token = jwtService.generateToken(authentication);
+        return getTokenJSON(user.getEmail(), user.getPassword());      
+    }
 
-            return token;
+    @Operation(summary = "Create a new user account")
+    @PostMapping("/auth/register")
+    public String register(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExampleRegister))) 
+            @RequestBody User user)
+            throws Exception {
+        
+        String uncryptedPassoword = user.getPassword();
+        User registeredUser = userService.saveUser(user);
+
+        if (registeredUser != null) {
+            return getTokenJSON(user.getEmail(), uncryptedPassoword);
+        } else {
+            return "Registration failed";
+        }
+    }
+
+    @Operation(summary = "Get current user account informations")
+    @GetMapping("/auth/me")
+    public UserDTO getCurrentUser(Principal principal) {
+        if (principal != null) {
+            User user = userService.getUserByMail(principal.getName());
+            return convertToDto(user);
+        } else {
+            return null;
+        }
+    }
+
+    private UserDTO convertToDto(User user) {
+		UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+		return userDTO;
+	}
+
+    private String getTokenJSON(String email, String encryptedPassword) { // return token in a JSON
+
+        try {
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, encryptedPassword));
+            String token = jwtService.generateToken(authentication);
+    
+            return "{ \"token\": \""+ token +"\" }";
 
         } catch (BadCredentialsException e) { // email not found
             return "Wrong email or password";
@@ -62,28 +98,4 @@ public class LoginController {
             return "Wrong email or password";
         }
     }
-
-    @Operation(summary = "Create a new user account")
-    @PostMapping("/auth/register")
-    public ResponseEntity<UserDTO> register(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExampleRegister))) 
-            @RequestBody User user)
-            throws Exception {
-
-        User registeredUser = userService.saveUser(user);
-
-        return ResponseEntity.ok(convertToDto(registeredUser));
-    }
-
-    @Operation(summary = "Get current user account informations")
-    @GetMapping("/auth/me")
-    public UserDTO getCurrentUser(Principal principal) {
-        User user = userService.getUserByMail(principal.getName());
-        return convertToDto(user);
-    }
-
-    private UserDTO convertToDto(User user) {
-		UserDTO userDTO = modelMapper.map(user, UserDTO.class);
-		return userDTO;
-	}
 }

@@ -34,7 +34,7 @@ public class UserController {
     private static final String schemaExample = "{ \"name\": \"Test\", \"email\": \"test@test.com\", \"password\": \"Password123\" }";
 
     @Operation(summary = "Create a new user")
-    @PostMapping("/user")
+    @PostMapping("/users")
     public UserDTO createUser(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExample)))
             @RequestBody User user) throws Exception {
@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @Operation(summary = "Get one user by id")
-    @GetMapping("/user/{id}")
+    @GetMapping("/users/{id}")
     public UserDTO getUser(@PathVariable("id") final Long id) {
         Optional<User> user = userService.getUser(id);
         if (user.isPresent()) {
@@ -59,7 +59,7 @@ public class UserController {
     }
 
     @Operation(summary = "Update an existing user")
-    @PutMapping("/user/{id}")
+    @PutMapping("/users/{id}")
     public UserDTO updateUser(          
             @PathVariable("id") final Long id, 
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExample)))
@@ -93,7 +93,7 @@ public class UserController {
     }
 
     @Operation(summary = "Delete a user")
-    @DeleteMapping("/user/{id}")
+    @DeleteMapping("/users/{id}")
     public void deleteUser(@PathVariable("id") final Long id) {
         userService.deleteUser(id);
     }

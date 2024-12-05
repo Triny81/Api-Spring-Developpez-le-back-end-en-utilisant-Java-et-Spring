@@ -36,7 +36,7 @@ public class MessageController {
 	private static final String schemaExample = "{ \"message\": \"A message\", \"rental\": { \"id\": 0}, \"user\": { \"id\": 0} }";
 
     @Operation(summary = "Add a message to a rental")
-	@PostMapping("/message")
+	@PostMapping("/messages")
 	public MessageDTO createMessage(
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Message.class), examples = @ExampleObject(value = schemaExample)))
 			@RequestBody Message message) {
@@ -44,7 +44,7 @@ public class MessageController {
 	}
 	
 	@Operation(summary = "Get one message by id")
-	@GetMapping("/message/{id}")
+	@GetMapping("/messages/{id}")
 	public MessageDTO getMessage(@PathVariable("id") final Long id) {
 		Optional<Message> message = messageService.getMessage(id);
 		if(message.isPresent()) {
@@ -61,7 +61,7 @@ public class MessageController {
 	}
 	
 	@Operation(summary = "Update an existing message")
-	@PutMapping("/message/{id}")
+	@PutMapping("/messages/{id}")
 	public MessageDTO updateMessage(
 		@PathVariable("id") final Long id, 
 		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Message.class), examples = @ExampleObject(value = schemaExample)))
@@ -95,7 +95,7 @@ public class MessageController {
 	}
 	
 	@Operation(summary = "Delete a message")
-	@DeleteMapping("/message/{id}")
+	@DeleteMapping("/messages/{id}")
 	public void deleteMessage(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Message.class), examples = @ExampleObject(value = schemaExample))) @PathVariable("id") final Long id) {
 		messageService.deleteMessage(id);
 	}

@@ -30,6 +30,10 @@ public class RentalService {
     }
 
     public Rental saveRental(Rental rental) {
+
+        if (rental.getPicture() != null) { 
+            // TODO : télécharger image dans un dossier et sauvegarder en BD l'url de cette image
+        }
         Rental savedRental = rentalRepository.save(rental);
         return savedRental;
     }
