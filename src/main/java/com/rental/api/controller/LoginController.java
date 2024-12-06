@@ -43,7 +43,7 @@ public class LoginController {
     }
 
     @Operation(summary = "User account connection")
-    @PostMapping("/auth/login")
+    @PostMapping("/api/auth/login")
     public String login(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExampleLogin))) 
             @RequestBody User user) {
@@ -52,7 +52,7 @@ public class LoginController {
     }
 
     @Operation(summary = "Create a new user account")
-    @PostMapping("/auth/register")
+    @PostMapping("/api/auth/register")
     public String register(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExampleRegister))) 
             @RequestBody User user)
@@ -69,7 +69,7 @@ public class LoginController {
     }
 
     @Operation(summary = "Get current user account informations")
-    @GetMapping("/auth/me")
+    @GetMapping("/api/auth/me")
     public UserDTO getCurrentUser(Principal principal) {
         if (principal != null) {
             User user = userService.getUserByMail(principal.getName());

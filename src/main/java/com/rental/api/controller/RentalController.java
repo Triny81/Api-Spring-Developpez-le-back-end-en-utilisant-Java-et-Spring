@@ -5,17 +5,19 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.gson.Gson;
 import com.rental.api.dto.RentalDTO;
 import com.rental.api.model.Rental;
-import com.rental.api.model.User;
+import com.rental.api.model.RentalFormWrapper;
 import com.rental.api.service.RentalService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,18 +34,19 @@ public class RentalController {
 	@Autowired
     private ModelMapper modelMapper;
 
-	private static final String schemaExample = "{ \"name\": \"My rental\", \"surface\": 25.5, \"price\": 255.55, \"picture\": \"LINK_URL\", \"description\": \"A description\", \"owner\": { \"id\": 0} }";
+	private static final String schemaExample = "{ \"name\": \"My rental\", \"surface\": 25.5, \"price\": 255.55, \"picture\": \"LINK_URL\", \"description\": \"A description\" }";
 
 	@Operation(summary = "Create a new rental")
-	@PostMapping("/rentals")
+	@PostMapping(path="/api/rentals", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	public RentalDTO createRental(
-			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class), examples = @ExampleObject(value = schemaExample))) 
-			@RequestBody Rental rental) {
-		return convertToDto(rentalService.saveRental(rental));
+			// @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class), examples = @ExampleObject(value = schemaExample))) 
+			@ModelAttribute RentalFormWrapper rental) throws Exception {
+
+			return convertToDto(rentalService.saveRental(rental));
 	}
 
 	@Operation(summary = "Get one rental by id")
-	@GetMapping("/rentals/{id}")
+	@GetMapping("/api/rentals/{id}")
 	public RentalDTO getRental(@PathVariable("id") final Long id) {
 		Optional<Rental> rental = rentalService.getRental(id);
 		if (rental.isPresent()) {
@@ -54,19 +57,19 @@ public class RentalController {
 	}
 
 	@Operation(summary = "Get all rentals")
-	@GetMapping("/rentals")
-	public ArrayList<RentalDTO> getRentals() {
+	@GetMapping("/api/rentals")
+	public String getRentals() {
 		return convertIterableToDto(rentalService.getRentals());
 	}
 
 	@Operation(summary = "Update an existing rental")
-	@PutMapping("/rentals/{id}")
+	@PutMapping("/api/rentals/{id}")
 	public RentalDTO updateRental(
 		@PathVariable("id") final Long id, 
 		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class), examples = @ExampleObject(value = schemaExample)))
-		@RequestBody Rental rental ) {
+		@ModelAttribute RentalFormWrapper rental ) throws Exception {
 		Optional<Rental> r = rentalService.getRental(id);
-
+		
 		if (r.isPresent()) {
 			Rental currentRental = r.get();
 
@@ -85,22 +88,17 @@ public class RentalController {
 				currentRental.setPrice(price);
 			}
 
-			String picture = rental.getPicture();
-			if (picture != null) {
-				currentRental.setPicture(picture);
-			}
+			// String picture = rental.getPicture();
+			// if (picture != null) {
+			// 	currentRental.setPicture(picture);
+			// }
 
 			String description = rental.getDescription();
 			if (description != null) {
 				currentRental.setDescription(description);
 			}
 
-			User owner = rental.getOwner();
-			if (owner != null) {
-				currentRental.setOwner(owner);
-			}
-
-			rentalService.saveRental(currentRental);
+			// rentalService.saveRental(currentRental, null);
 
 			return convertToDto(currentRental);
 		} else {
@@ -109,7 +107,7 @@ public class RentalController {
 	}
 
 	@Operation(summary = "Delete a rental")
-	@DeleteMapping("/rentals/{id}")
+	@DeleteMapping("/api/rentals/{id}")
 	public void deleteRental(@PathVariable("id") final Long id) {
 		rentalService.deleteRental(id);
 	}
@@ -119,14 +117,14 @@ public class RentalController {
 		return rentalDTO;
 	}
 
-	private ArrayList<RentalDTO> convertIterableToDto(Iterable<Rental> rentals) {
+	private String convertIterableToDto(Iterable<Rental> rentals) {
 		ArrayList<RentalDTO> rentalsDTO = new ArrayList<RentalDTO>();
 
-		for (Rental m : rentals) {
-			RentalDTO rentalDTO = modelMapper.map(m, RentalDTO.class);
+		for (Rental r : rentals) {
+			RentalDTO rentalDTO = modelMapper.map(r, RentalDTO.class);
 			rentalsDTO.add(rentalDTO);
 		}
-		 // TODO : modifier JSON format pour angular
-		return rentalsDTO;
+
+		return "{ \"rentals\": "+ new Gson().toJson(rentalsDTO) +" }";
 	}
 }

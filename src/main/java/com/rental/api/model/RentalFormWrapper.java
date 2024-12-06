@@ -1,11 +1,13 @@
-package com.rental.api.dto;
+package com.rental.api.model;
 
 import java.util.Date;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.Data;
 
 @Data
-public class RentalDTO {
+public class RentalFormWrapper {
     private Long id;
 
     private String name;
@@ -14,11 +16,11 @@ public class RentalDTO {
 
     private Float price;
 
-    private String picture;
+    private MultipartFile picture; // get the image send by the post request
 
     private String description;
 
-    private UserDTO owner;
+    private User owner;
 
     private Date createdAt;
 

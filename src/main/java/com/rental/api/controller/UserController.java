@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.gson.Gson;
 import com.rental.api.dto.UserDTO;
 import com.rental.api.model.User;
 import com.rental.api.service.UserService;
@@ -34,7 +35,7 @@ public class UserController {
     private static final String schemaExample = "{ \"name\": \"Test\", \"email\": \"test@test.com\", \"password\": \"Password123\" }";
 
     @Operation(summary = "Create a new user")
-    @PostMapping("/users")
+    @PostMapping("/api/users")
     public UserDTO createUser(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExample)))
             @RequestBody User user) throws Exception {
@@ -42,7 +43,7 @@ public class UserController {
     }
 
     @Operation(summary = "Get one user by id")
-    @GetMapping("/users/{id}")
+    @GetMapping("/api/users/{id}")
     public UserDTO getUser(@PathVariable("id") final Long id) {
         Optional<User> user = userService.getUser(id);
         if (user.isPresent()) {
@@ -53,13 +54,13 @@ public class UserController {
     }
 
     @Operation(summary = "Get all users")
-    @GetMapping("/users")
-    public ArrayList<UserDTO> getUsers() {
+    @GetMapping("/api/users")
+    public String getUsers() {
         return convertIterableToDto(userService.getUsers());
     }
 
     @Operation(summary = "Update an existing user")
-    @PutMapping("/users/{id}")
+    @PutMapping("/api/users/{id}")
     public UserDTO updateUser(          
             @PathVariable("id") final Long id, 
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExample)))
@@ -93,7 +94,7 @@ public class UserController {
     }
 
     @Operation(summary = "Delete a user")
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/api/users/{id}")
     public void deleteUser(@PathVariable("id") final Long id) {
         userService.deleteUser(id);
     }
@@ -103,14 +104,14 @@ public class UserController {
 		return userDTO;
 	}
 
-	private ArrayList<UserDTO> convertIterableToDto(Iterable<User> users) {
+	private String convertIterableToDto(Iterable<User> users) {
 		ArrayList<UserDTO> usersDTO = new ArrayList<UserDTO>();
 
-		for (User m : users) {
-			UserDTO userDTO = modelMapper.map(m, UserDTO.class);
+		for (User u : users) {
+			UserDTO userDTO = modelMapper.map(u, UserDTO.class);
 			usersDTO.add(userDTO);
 		}
 		
-		return usersDTO;
+		return "{ \"users\": "+ new Gson().toJson(usersDTO) +" }";
 	}
 }

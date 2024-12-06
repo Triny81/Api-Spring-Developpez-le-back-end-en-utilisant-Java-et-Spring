@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.gson.Gson;
 import com.rental.api.dto.MessageDTO;
 import com.rental.api.model.Message;
 import com.rental.api.model.Rental;
@@ -33,10 +34,10 @@ public class MessageController {
 	@Autowired
     private ModelMapper modelMapper;
 
-	private static final String schemaExample = "{ \"message\": \"A message\", \"rental\": { \"id\": 0}, \"user\": { \"id\": 0} }";
+	private static final String schemaExample = "{ \"message\": \"A message\" }";
 
     @Operation(summary = "Add a message to a rental")
-	@PostMapping("/messages")
+	@PostMapping("/api/messages")
 	public MessageDTO createMessage(
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Message.class), examples = @ExampleObject(value = schemaExample)))
 			@RequestBody Message message) {
@@ -44,7 +45,7 @@ public class MessageController {
 	}
 	
 	@Operation(summary = "Get one message by id")
-	@GetMapping("/messages/{id}")
+	@GetMapping("/api/messages/{id}")
 	public MessageDTO getMessage(@PathVariable("id") final Long id) {
 		Optional<Message> message = messageService.getMessage(id);
 		if(message.isPresent()) {
@@ -55,13 +56,13 @@ public class MessageController {
 	}
 	
 	@Operation(summary = "Get all messages")
-	@GetMapping("/messages")
-	public ArrayList<MessageDTO> getMessages() {
+	@GetMapping("/api/messages")
+	public String getMessages() {
 		return convertIterableToDto(messageService.getMessages());
 	}
 	
 	@Operation(summary = "Update an existing message")
-	@PutMapping("/messages/{id}")
+	@PutMapping("/api/messages/{id}")
 	public MessageDTO updateMessage(
 		@PathVariable("id") final Long id, 
 		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Message.class), examples = @ExampleObject(value = schemaExample)))
@@ -95,7 +96,7 @@ public class MessageController {
 	}
 	
 	@Operation(summary = "Delete a message")
-	@DeleteMapping("/messages/{id}")
+	@DeleteMapping("/api/messages/{id}")
 	public void deleteMessage(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Message.class), examples = @ExampleObject(value = schemaExample))) @PathVariable("id") final Long id) {
 		messageService.deleteMessage(id);
 	}
@@ -105,7 +106,7 @@ public class MessageController {
 		return messageDTO;
 	}
 
-	private ArrayList<MessageDTO> convertIterableToDto(Iterable<Message> messages) {
+	private String convertIterableToDto(Iterable<Message> messages) {
 		ArrayList<MessageDTO> messagesDTO = new ArrayList<MessageDTO>();
 
 		for (Message m : messages) {
@@ -113,6 +114,6 @@ public class MessageController {
 			messagesDTO.add(messageDTO);
 		}
 		
-		return messagesDTO;
+		return "{ \"messages\": "+ new Gson().toJson(messagesDTO) +" }";
 	}
 }
