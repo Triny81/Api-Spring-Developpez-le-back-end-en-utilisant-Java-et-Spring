@@ -1,5 +1,12 @@
-{"properties": [{
-  "name": "spring.env-var.folder-images.rentals",
-  "type": "java.lang.String",
-  "description": "A description for 'spring.env-var.folder-images.rentals'"
-}]}
+{"properties": [
+  {
+    "name": "spring.env-var.folder-images.rentals",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.env-var.folder-images.rentals'"
+  },
+  {
+    "name": "spring.application.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.application.base-url'"
+  }
+]}

@@ -2,6 +2,9 @@ package com.rental.api.dto;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
 @Data
@@ -18,9 +21,12 @@ public class RentalDTO {
 
     private String description;
 
-    private UserDTO owner;
+    @JsonProperty("owner_id")
+    private Long ownerId;
 
+    @JsonFormat(pattern="yyyy/MM/dd")
     private Date createdAt;
 
+    @JsonFormat(pattern="yyyy/MM/dd")
     private Date updatedAt;
 }

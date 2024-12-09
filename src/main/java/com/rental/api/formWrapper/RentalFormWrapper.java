@@ -1,8 +1,8 @@
-package com.rental.api.model;
-
-import java.util.Date;
+package com.rental.api.formWrapper;
 
 import org.springframework.web.multipart.MultipartFile;
+
+import com.rental.api.model.User;
 
 import lombok.Data;
 
@@ -21,8 +21,4 @@ public class RentalFormWrapper {
     private String description;
 
     private User owner;
-
-    private Date createdAt;
-
-    private Date updatedAt;
 }

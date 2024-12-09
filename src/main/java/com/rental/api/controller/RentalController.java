@@ -1,6 +1,8 @@
 package com.rental.api.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
@@ -14,10 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.gson.Gson;
 import com.rental.api.dto.RentalDTO;
+import com.rental.api.formWrapper.RentalFormWrapper;
 import com.rental.api.model.Rental;
-import com.rental.api.model.RentalFormWrapper;
 import com.rental.api.service.RentalService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,7 +40,7 @@ public class RentalController {
 	@Operation(summary = "Create a new rental")
 	@PostMapping(path="/api/rentals", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	public RentalDTO createRental(
-			// @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class), examples = @ExampleObject(value = schemaExample))) 
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = Rental.class), examples = @ExampleObject(value = schemaExample)))
 			@ModelAttribute RentalFormWrapper rental) throws Exception {
 
 			return convertToDto(rentalService.saveRental(rental));
@@ -58,49 +59,39 @@ public class RentalController {
 
 	@Operation(summary = "Get all rentals")
 	@GetMapping("/api/rentals")
-	public String getRentals() {
+	public Map<String, ArrayList<RentalDTO>> getRentals() {
 		return convertIterableToDto(rentalService.getRentals());
 	}
 
 	@Operation(summary = "Update an existing rental")
-	@PutMapping("/api/rentals/{id}")
+	@PutMapping(path="/api/rentals/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	public RentalDTO updateRental(
 		@PathVariable("id") final Long id, 
-		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class), examples = @ExampleObject(value = schemaExample)))
-		@ModelAttribute RentalFormWrapper rental ) throws Exception {
+		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = Rental.class), examples = @ExampleObject(value = schemaExample)))
+		@ModelAttribute RentalFormWrapper rental) throws Exception {
 		Optional<Rental> r = rentalService.getRental(id);
-		
+	
 		if (r.isPresent()) {
 			Rental currentRental = r.get();
-
-			String name = rental.getName();
-			if (name != null) {
-				currentRental.setName(name);
+			rental.setId(id);
+	
+			if (rental.getName() == null) {
+				rental.setName(currentRental.getName());
 			}
 
-			Float surface = rental.getSurface();
-			if (surface != null) {
-				currentRental.setSurface(surface);
+			if (rental.getSurface() == null) {
+				rental.setSurface(currentRental.getSurface());
 			}
 
-			Float price = rental.getPrice();
-			if (price != null) {
-				currentRental.setPrice(price);
+			if (rental.getPrice() == null) {
+				rental.setPrice(currentRental.getPrice());
 			}
 
-			// String picture = rental.getPicture();
-			// if (picture != null) {
-			// 	currentRental.setPicture(picture);
-			// }
-
-			String description = rental.getDescription();
-			if (description != null) {
-				currentRental.setDescription(description);
+			if (rental.getDescription() == null) {
+				rental.setDescription(currentRental.getDescription());
 			}
-
-			// rentalService.saveRental(currentRental, null);
-
-			return convertToDto(currentRental);
+	
+			return convertToDto(rentalService.saveRental(rental));
 		} else {
 			return null;
 		}
@@ -117,7 +108,7 @@ public class RentalController {
 		return rentalDTO;
 	}
 
-	private String convertIterableToDto(Iterable<Rental> rentals) {
+	private Map<String, ArrayList<RentalDTO>> convertIterableToDto(Iterable<Rental> rentals) {
 		ArrayList<RentalDTO> rentalsDTO = new ArrayList<RentalDTO>();
 
 		for (Rental r : rentals) {
@@ -125,6 +116,9 @@ public class RentalController {
 			rentalsDTO.add(rentalDTO);
 		}
 
-		return "{ \"rentals\": "+ new Gson().toJson(rentalsDTO) +" }";
+		Map<String, ArrayList<RentalDTO>> map = new HashMap<>(); 
+		map.put("rentals", rentalsDTO);
+
+		return map;
 	}
 }

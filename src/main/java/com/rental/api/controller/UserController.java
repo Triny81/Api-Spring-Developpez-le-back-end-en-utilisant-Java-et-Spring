@@ -1,6 +1,8 @@
 package com.rental.api.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.gson.Gson;
 import com.rental.api.dto.UserDTO;
 import com.rental.api.model.User;
 import com.rental.api.service.UserService;
@@ -55,7 +56,7 @@ public class UserController {
 
     @Operation(summary = "Get all users")
     @GetMapping("/api/users")
-    public String getUsers() {
+    public Map<String, ArrayList<UserDTO>> getUsers() {
         return convertIterableToDto(userService.getUsers());
     }
 
@@ -104,7 +105,7 @@ public class UserController {
 		return userDTO;
 	}
 
-	private String convertIterableToDto(Iterable<User> users) {
+	private Map<String, ArrayList<UserDTO>> convertIterableToDto(Iterable<User> users) {
 		ArrayList<UserDTO> usersDTO = new ArrayList<UserDTO>();
 
 		for (User u : users) {
@@ -112,6 +113,9 @@ public class UserController {
 			usersDTO.add(userDTO);
 		}
 		
-		return "{ \"users\": "+ new Gson().toJson(usersDTO) +" }";
+		Map<String, ArrayList<UserDTO>> map = new HashMap<>(); 
+		map.put("users", usersDTO);
+
+		return map;
 	}
 }

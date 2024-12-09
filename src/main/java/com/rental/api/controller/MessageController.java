@@ -1,6 +1,8 @@
 package com.rental.api.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
@@ -13,11 +15,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.gson.Gson;
 import com.rental.api.dto.MessageDTO;
+import com.rental.api.formWrapper.MessageFormWrapper;
 import com.rental.api.model.Message;
-import com.rental.api.model.Rental;
-import com.rental.api.model.User;
 import com.rental.api.service.MessageService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,13 +34,14 @@ public class MessageController {
 	@Autowired
     private ModelMapper modelMapper;
 
-	private static final String schemaExample = "{ \"message\": \"A message\" }";
+	private static final String schemaExample = "{ \"message\": \"A message\", \"rental_id\": \"0\", \"user_id\": \"0\" }";
 
     @Operation(summary = "Add a message to a rental")
 	@PostMapping("/api/messages")
 	public MessageDTO createMessage(
-			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Message.class), examples = @ExampleObject(value = schemaExample)))
-			@RequestBody Message message) {
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageFormWrapper.class), examples = @ExampleObject(value = schemaExample)))
+			@RequestBody MessageFormWrapper message) throws Exception {
+		
 		return convertToDto(messageService.saveMessage(message));
 	}
 	
@@ -57,7 +58,7 @@ public class MessageController {
 	
 	@Operation(summary = "Get all messages")
 	@GetMapping("/api/messages")
-	public String getMessages() {
+	public Map<String, ArrayList<MessageDTO>> getMessages() {
 		return convertIterableToDto(messageService.getMessages());
 	}
 	
@@ -66,33 +67,30 @@ public class MessageController {
 	public MessageDTO updateMessage(
 		@PathVariable("id") final Long id, 
 		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Message.class), examples = @ExampleObject(value = schemaExample)))
-		@RequestBody Message message) {
+		@RequestBody MessageFormWrapper message) throws Exception {
 		Optional<Message> m = messageService.getMessage(id);
-
+		
 		if(m.isPresent()) {
 			Message currentMessage = m.get();
+			message.setId(id);
 
-			Rental rental = message.getRental();
-			if(rental != null) {
-				currentMessage.setRental(rental);
+			if(message.getRental_id() == null) {
+				message.setRental_id(currentMessage.getRental().getId());
 			}
 
-			User user = message.getUser();
-			if(user != null) {
-				currentMessage.setUser(user);
+			if(message.getUser_id() == null) {
+				message.setUser_id(currentMessage.getUser().getId());
 			}
 
-			String messageNew = message.getMessage();
-			if(messageNew != null) {
-				currentMessage.setMessage(messageNew);
+			if (message.getMessage() == null) {
+				message.setMessage(currentMessage.getMessage());
 			}
 
-			messageService.saveMessage(currentMessage);
-
-			return convertToDto(currentMessage);
+			return convertToDto(messageService.saveMessage(message));
 		} else {
 			return null;
 		}
+
 	}
 	
 	@Operation(summary = "Delete a message")
@@ -106,7 +104,7 @@ public class MessageController {
 		return messageDTO;
 	}
 
-	private String convertIterableToDto(Iterable<Message> messages) {
+	private Map<String, ArrayList<MessageDTO>> convertIterableToDto(Iterable<Message> messages) {
 		ArrayList<MessageDTO> messagesDTO = new ArrayList<MessageDTO>();
 
 		for (Message m : messages) {
@@ -114,6 +112,9 @@ public class MessageController {
 			messagesDTO.add(messageDTO);
 		}
 		
-		return "{ \"messages\": "+ new Gson().toJson(messagesDTO) +" }";
+		Map<String, ArrayList<MessageDTO>> map = new HashMap<>(); 
+		map.put("messages", messagesDTO);
+
+		return map;
 	}
 }
