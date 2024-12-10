@@ -39,11 +39,13 @@ public class RentalController {
 
 	@Operation(summary = "Create a new rental")
 	@PostMapping(path="/api/rentals", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-	public RentalDTO createRental(
-			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = Rental.class), examples = @ExampleObject(value = schemaExample)))
-			@ModelAttribute RentalFormWrapper rental) throws Exception {
+	public String createRental(
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The owner of the rental is automatically the user who is sending the post request.<br> The picture can be a PNG or a JPG.", required = true, content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = RentalFormWrapper.class)))
+			@ModelAttribute RentalFormWrapper rental
+			) throws Exception {
 
-			return convertToDto(rentalService.saveRental(rental));
+			rentalService.saveRental(rental);
+			return "{ \"message\": \"Rental created\" }";
 	}
 
 	@Operation(summary = "Get one rental by id")
@@ -65,9 +67,9 @@ public class RentalController {
 
 	@Operation(summary = "Update an existing rental")
 	@PutMapping(path="/api/rentals/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-	public RentalDTO updateRental(
+	public String updateRental(
 		@PathVariable("id") final Long id, 
-		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = Rental.class), examples = @ExampleObject(value = schemaExample)))
+		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Only the owner of the rental can update its rental.<br> Don't need to upload a picture, it won't be taken into consideration.", required = true, content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = RentalFormWrapper.class), examples = @ExampleObject(value = schemaExample)))
 		@ModelAttribute RentalFormWrapper rental) throws Exception {
 		Optional<Rental> r = rentalService.getRental(id);
 	
@@ -91,7 +93,8 @@ public class RentalController {
 				rental.setDescription(currentRental.getDescription());
 			}
 	
-			return convertToDto(rentalService.saveRental(rental));
+			rentalService.saveRental(rental);
+			return "{ \"message\": \"Rental updated\" }";
 		} else {
 			return null;
 		}

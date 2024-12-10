@@ -84,7 +84,7 @@ public class RentalService {
     
                 rental.setPicture(imagePathDB); // save the URL of the image
                 saveUploadedImage(pictureToSave, imagePathFolder);
-    
+
                 savedRental = rentalRepository.save(rental); 
             }
 
@@ -105,16 +105,14 @@ public class RentalService {
             rental.setSurface(rentalWrapper.getSurface());
             rental.setPrice(rentalWrapper.getPrice());
             rental.setDescription(rentalWrapper.getDescription());
-            // rental.setOwner(user); // join the rental to the owner
-            // rental.setPicture(rental.getPicture()); // picture musn't be updated
          
-            savedRental = rentalRepository.save(rental); 
+            savedRental = rentalRepository.save(rental);
         }
 
         return savedRental;
     }
 
-   private void saveUploadedImage(MultipartFile file, String imagePath) throws IOException {
+   private boolean saveUploadedImage(MultipartFile file, String imagePath) throws IOException {
         String folderPath = imagePath.replace(StringUtils.getFilename(imagePath), ""); // remove to the path the image name
 
         File theDir = new File(folderPath); // create the folders if they don't exist
@@ -125,5 +123,6 @@ public class RentalService {
         byte[] bytes = file.getBytes(); // create the image
         Path path = Paths.get(imagePath);
         Files.write(path, bytes);
+        return true;
     }
 }

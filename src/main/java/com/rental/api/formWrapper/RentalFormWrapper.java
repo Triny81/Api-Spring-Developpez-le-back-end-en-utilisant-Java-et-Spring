@@ -2,8 +2,6 @@ package com.rental.api.formWrapper;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.rental.api.model.User;
-
 import lombok.Data;
 
 @Data
@@ -19,6 +17,4 @@ public class RentalFormWrapper {
     private MultipartFile picture; // get the image send by the post request
 
     private String description;
-
-    private User owner;
 }

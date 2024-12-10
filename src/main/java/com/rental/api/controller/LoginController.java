@@ -45,7 +45,7 @@ public class LoginController {
     @Operation(summary = "User account connection")
     @PostMapping("/api/auth/login")
     public String login(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExampleLogin))) 
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "No authentication required.<br> Returns a JWT token when the login is correct.", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExampleLogin))) 
             @RequestBody User user) {
 
         return getTokenJSON(user.getEmail(), user.getPassword());      
@@ -54,7 +54,7 @@ public class LoginController {
     @Operation(summary = "Create a new user account")
     @PostMapping("/api/auth/register")
     public String register(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExampleRegister))) 
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "No authentication required.<br> Returns a JWT token when the account is created.<br> Returns an error if the email already exists.", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExampleRegister))) 
             @RequestBody User user)
             throws Exception {
         

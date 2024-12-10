@@ -36,13 +36,14 @@ public class MessageController {
 
 	private static final String schemaExample = "{ \"message\": \"A message\", \"rental_id\": \"0\", \"user_id\": \"0\" }";
 
-    @Operation(summary = "Add a message to a rental")
+    @Operation(summary = "Send a message to the owner of a rental")
 	@PostMapping("/api/messages")
-	public MessageDTO createMessage(
-			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageFormWrapper.class), examples = @ExampleObject(value = schemaExample)))
+	public String createMessage(
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The message is linked to the rental and to the owner of the rental", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageFormWrapper.class), examples = @ExampleObject(value = schemaExample)))
 			@RequestBody MessageFormWrapper message) throws Exception {
 		
-		return convertToDto(messageService.saveMessage(message));
+		messageService.saveMessage(message);
+		return "{ \"message\": \"Message send with success\" }";
 	}
 	
 	@Operation(summary = "Get one message by id")
@@ -64,9 +65,9 @@ public class MessageController {
 	
 	@Operation(summary = "Update an existing message")
 	@PutMapping("/api/messages/{id}")
-	public MessageDTO updateMessage(
+	public String updateMessage(
 		@PathVariable("id") final Long id, 
-		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Message.class), examples = @ExampleObject(value = schemaExample)))
+		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageFormWrapper.class), examples = @ExampleObject(value = schemaExample)))
 		@RequestBody MessageFormWrapper message) throws Exception {
 		Optional<Message> m = messageService.getMessage(id);
 		
@@ -86,11 +87,12 @@ public class MessageController {
 				message.setMessage(currentMessage.getMessage());
 			}
 
-			return convertToDto(messageService.saveMessage(message));
+			messageService.saveMessage(message);
+			return "{ \"message\": \"Message updated with success\" }";
+	
 		} else {
 			return null;
 		}
-
 	}
 	
 	@Operation(summary = "Delete a message")
