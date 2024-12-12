@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.rental.api.formWrapper.RentalFormWrapper;
+import com.rental.api.dto.RentalDTOFormWrapper;
 import com.rental.api.model.Rental;
 import com.rental.api.model.User;
 import com.rental.api.repository.RentalRepository;
@@ -50,7 +50,7 @@ public class RentalService {
         rentalRepository.deleteById(id);
     }
 
-    public Rental saveRental(RentalFormWrapper rentalWrapper) throws Exception {
+    public Rental saveRental(RentalDTOFormWrapper rentalWrapper) throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.getUserByMail((auth.getName()));
         String folder = folderImagesBase;
@@ -80,8 +80,8 @@ public class RentalService {
                 }
     
                 String imagePathFolder = folder +"/"+ rental.getId() +"."+ extensionFile;
-                String imagePathDB = imagePathFolder.replace("src/main/resources/static", baseUrl); // URL EN DUR ???? PAS UNE BONNE PRATIQUE
-    
+                String imagePathDB = imagePathFolder.replace("./images_api", "/api/images");
+                
                 rental.setPicture(imagePathDB); // save the URL of the image
                 saveUploadedImage(pictureToSave, imagePathFolder);
 
@@ -112,17 +112,17 @@ public class RentalService {
         return savedRental;
     }
 
-   private boolean saveUploadedImage(MultipartFile file, String imagePath) throws IOException {
+   private void saveUploadedImage(MultipartFile file, String imagePath) throws IOException {
         String folderPath = imagePath.replace(StringUtils.getFilename(imagePath), ""); // remove to the path the image name
 
         File theDir = new File(folderPath); // create the folders if they don't exist
         if (!theDir.exists()) {
             theDir.mkdirs();
         }
-
-        byte[] bytes = file.getBytes(); // create the image
+        
+        // create the image
+        byte[] bytes = file.getBytes(); 
         Path path = Paths.get(imagePath);
         Files.write(path, bytes);
-        return true;
     }
 }

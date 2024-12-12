@@ -36,7 +36,7 @@ public class UserController {
     private static final String schemaExample = "{ \"name\": \"Test\", \"email\": \"test@test.com\", \"password\": \"Password123\" }";
 
     @Operation(summary = "Create a new user")
-    @PostMapping("/api/users")
+    @PostMapping("/api/user")
     public UserDTO createUser(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExample)))
             @RequestBody User user) throws Exception {
@@ -44,7 +44,7 @@ public class UserController {
     }
 
     @Operation(summary = "Get one user by id")
-    @GetMapping("/api/users/{id}")
+    @GetMapping("/api/user/{id}")
     public UserDTO getUser(@PathVariable("id") final Long id) {
         Optional<User> user = userService.getUser(id);
         if (user.isPresent()) {
@@ -55,13 +55,13 @@ public class UserController {
     }
 
     @Operation(summary = "Get all users")
-    @GetMapping("/api/users")
+    @GetMapping("/api/user")
     public Map<String, ArrayList<UserDTO>> getUsers() {
         return convertIterableToDto(userService.getUsers());
     }
 
     @Operation(summary = "Update an existing user")
-    @PutMapping("/api/users/{id}")
+    @PutMapping("/api/user/{id}")
     public UserDTO updateUser(          
             @PathVariable("id") final Long id, 
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class), examples = @ExampleObject(value = schemaExample)))
@@ -95,7 +95,7 @@ public class UserController {
     }
 
     @Operation(summary = "Delete a user")
-    @DeleteMapping("/api/users/{id}")
+    @DeleteMapping("/api/user/{id}")
     public void deleteUser(@PathVariable("id") final Long id) {
         userService.deleteUser(id);
     }

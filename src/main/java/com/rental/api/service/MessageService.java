@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.rental.api.formWrapper.MessageFormWrapper;
+import com.rental.api.dto.MessageDTOFormWrapper;
 import com.rental.api.model.Message;
 import com.rental.api.model.Rental;
 import com.rental.api.model.User;
@@ -38,7 +38,7 @@ public class MessageService {
         messageRepository.deleteById(id);
     }
 
-    public Message saveMessage(MessageFormWrapper messageWrapper) throws Exception {
+    public Message saveMessage(MessageDTOFormWrapper messageWrapper) throws Exception {
         Message message = messageWrapper.getId() == null ? new Message() : getMessage(messageWrapper.getId()).get();
 
         Optional<Rental> rental = rentalService.getRental(messageWrapper.getRental_id());

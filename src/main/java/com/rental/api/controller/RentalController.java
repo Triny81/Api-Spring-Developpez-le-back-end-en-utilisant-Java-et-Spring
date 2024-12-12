@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rental.api.dto.RentalDTO;
-import com.rental.api.formWrapper.RentalFormWrapper;
+import com.rental.api.dto.RentalDTOFormWrapper;
 import com.rental.api.model.Rental;
 import com.rental.api.service.RentalService;
 
@@ -40,8 +40,8 @@ public class RentalController {
 	@Operation(summary = "Create a new rental")
 	@PostMapping(path="/api/rentals", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	public String createRental(
-			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The owner of the rental is automatically the user who is sending the post request.<br> The picture can be a PNG or a JPG.", required = true, content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = RentalFormWrapper.class)))
-			@ModelAttribute RentalFormWrapper rental
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The owner of the rental is automatically the user who is sending the post request.<br> The picture can be a PNG or a JPG.", required = true, content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = RentalDTOFormWrapper.class)))
+			@ModelAttribute RentalDTOFormWrapper rental
 			) throws Exception {
 
 			rentalService.saveRental(rental);
@@ -69,8 +69,8 @@ public class RentalController {
 	@PutMapping(path="/api/rentals/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	public String updateRental(
 		@PathVariable("id") final Long id, 
-		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Only the owner of the rental can update its rental.<br> Don't need to upload a picture, it won't be taken into consideration.", required = true, content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = RentalFormWrapper.class), examples = @ExampleObject(value = schemaExample)))
-		@ModelAttribute RentalFormWrapper rental) throws Exception {
+		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Only the owner of the rental can update its rental.<br> Don't need to upload a picture, it won't be taken into consideration.", required = true, content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = RentalDTOFormWrapper.class), examples = @ExampleObject(value = schemaExample)))
+		@ModelAttribute RentalDTOFormWrapper rental) throws Exception {
 		Optional<Rental> r = rentalService.getRental(id);
 	
 		if (r.isPresent()) {

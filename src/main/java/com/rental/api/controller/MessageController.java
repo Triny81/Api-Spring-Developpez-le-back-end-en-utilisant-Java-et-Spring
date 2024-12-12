@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rental.api.dto.MessageDTO;
-import com.rental.api.formWrapper.MessageFormWrapper;
+import com.rental.api.dto.MessageDTOFormWrapper;
 import com.rental.api.model.Message;
 import com.rental.api.service.MessageService;
 
@@ -39,8 +39,8 @@ public class MessageController {
     @Operation(summary = "Send a message to the owner of a rental")
 	@PostMapping("/api/messages")
 	public String createMessage(
-			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The message is linked to the rental and to the owner of the rental", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageFormWrapper.class), examples = @ExampleObject(value = schemaExample)))
-			@RequestBody MessageFormWrapper message) throws Exception {
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The message is linked to the rental and to the owner of the rental", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTOFormWrapper.class), examples = @ExampleObject(value = schemaExample)))
+			@RequestBody MessageDTOFormWrapper message) throws Exception {
 		
 		messageService.saveMessage(message);
 		return "{ \"message\": \"Message send with success\" }";
@@ -67,8 +67,8 @@ public class MessageController {
 	@PutMapping("/api/messages/{id}")
 	public String updateMessage(
 		@PathVariable("id") final Long id, 
-		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageFormWrapper.class), examples = @ExampleObject(value = schemaExample)))
-		@RequestBody MessageFormWrapper message) throws Exception {
+		@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDTOFormWrapper.class), examples = @ExampleObject(value = schemaExample)))
+		@RequestBody MessageDTOFormWrapper message) throws Exception {
 		Optional<Message> m = messageService.getMessage(id);
 		
 		if(m.isPresent()) {

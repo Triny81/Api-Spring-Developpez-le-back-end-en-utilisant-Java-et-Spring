@@ -29,7 +29,7 @@ import io.jsonwebtoken.security.Keys;
 @Configuration
 public class SpringSecurityConfig {
 	private SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-	private String jwtKey = Encoders.BASE64.encode(key.getEncoded()); // random JWT key for every application launch
+	private String jwtKey = Encoders.BASE64.encode(key.getEncoded());
 
 	@Autowired
 	private CustomUserDetailsService customUserDetailsService;
@@ -41,7 +41,7 @@ public class SpringSecurityConfig {
 				.csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(
-						(auth) -> auth.requestMatchers("api/auth/login", "api/auth/register", "images/**").permitAll()
+						(auth) -> auth.requestMatchers("api/auth/login", "api/auth/register", "api/images/**").permitAll()
 								.anyRequest().authenticated())
 				.httpBasic(Customizer.withDefaults())
 				.oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))

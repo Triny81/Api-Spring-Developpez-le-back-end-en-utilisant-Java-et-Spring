@@ -1,9 +1,9 @@
-package com.rental.api.formWrapper;
+package com.rental.api.dto;
 
 import lombok.Data;
 
 @Data
-public class MessageFormWrapper {
+public class MessageDTOFormWrapper {
     private Long id;
 
     private Long rental_id;
